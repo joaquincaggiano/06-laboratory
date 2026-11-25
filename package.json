@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "tsx app.ts",
+    "start:structured": "tsx app-with-structured-output.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
