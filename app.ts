@@ -95,7 +95,7 @@ async function classify(agent: Agent, prompt: string): Promise<string> {
 }
 
 // ---------- Medición ----------
-const RUNS = 1; // PRUEBA: restaurar 5
+const RUNS = 5;
 const THRESHOLD = 75;
 const normalize = (s: string) => s.trim().toUpperCase();
 const VALID = ["APTO", "REVISAR", "DESCARTAR"];
@@ -136,8 +136,8 @@ async function evaluate(agent: Agent, build: PromptBuilder, cases: Case[]) {
 
 // ---------- Informe ----------
 const SETS: Record<string, Case[]> = {
-  dev: dataset["dev-set"].slice(0, 5), // PRUEBA: quitar .slice(0, 5)
-  holdout: dataset["holdout-set"].slice(0, 3), // PRUEBA: quitar .slice(0, 3)
+  dev: dataset["dev-set"], 
+  holdout: dataset["holdout-set"],
 };
 
 const rows: Record<string, string>[] = [];
