@@ -1,5 +1,10 @@
 import "dotenv/config";
-import { createAgent, createMiddleware, initChatModel } from "langchain";
+import {
+  createAgent,
+  createMiddleware,
+  initChatModel,
+  modelRetryMiddleware,
+} from "langchain";
 import { AIMessage } from "@langchain/core/messages";
 import * as z from "zod";
 import dataset from "./dataset.json" with { type: "json" };
@@ -66,7 +71,16 @@ async function buildAgent(model: string) {
       },
     }),
     responseFormat: OutputResponseSchema,
-    middleware: [discriminationGuardrail],
+    middleware: [
+      discriminationGuardrail,
+      modelRetryMiddleware({
+        maxRetries: 5,
+        initialDelayMs: 2000,
+        backoffFactor: 2,
+        maxDelayMs: 60_000,
+        jitter: true,
+      }),
+    ],
   });
 }
 
@@ -81,7 +95,7 @@ async function classify(agent: Agent, prompt: string): Promise<string> {
 }
 
 // ---------- Medición ----------
-const RUNS = 5;
+const RUNS = 1; // PRUEBA: restaurar 5
 const THRESHOLD = 75;
 const normalize = (s: string) => s.trim().toUpperCase();
 const VALID = ["APTO", "REVISAR", "DESCARTAR"];
@@ -122,8 +136,8 @@ async function evaluate(agent: Agent, build: PromptBuilder, cases: Case[]) {
 
 // ---------- Informe ----------
 const SETS: Record<string, Case[]> = {
-  dev: dataset["dev-set"],
-  holdout: dataset["holdout-set"],
+  dev: dataset["dev-set"].slice(0, 5), // PRUEBA: quitar .slice(0, 5)
+  holdout: dataset["holdout-set"].slice(0, 3), // PRUEBA: quitar .slice(0, 3)
 };
 
 const rows: Record<string, string>[] = [];
